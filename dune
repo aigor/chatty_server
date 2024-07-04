@@ -1,0 +1,3 @@
+(executable 
+ (name chatty_server)
+ (libraries lwt logs logs.fmt))
