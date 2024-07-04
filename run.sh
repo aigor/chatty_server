@@ -1,3 +1,3 @@
 #!/bin/bash
 
-dune exec -w -- ./chatty_server.exe 25
+dune exec -- ./chatty_server.exe 27
