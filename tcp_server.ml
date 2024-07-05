@@ -78,5 +78,5 @@ let create_socket_server application_port message_stream =
   *)  
   Sys.set_signal Sys.sigpipe Sys.Signal_ignore;
   let sock = create_socket application_port in
-  let _ = Logs_lwt.info (fun m -> m "TCP server is listening on port %i" application_port) in
+  let _ = Logs_lwt.info (fun m -> m "The TCP server is listening on port %i" application_port) in
   create_server sock message_stream
