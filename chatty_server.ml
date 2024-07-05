@@ -10,8 +10,8 @@ let run_in_server_mode app_name child_processes =
 
   (* let _ = Lwt_main.run (Lwt_io.write_lines Lwt_io.stdout (Lwt_io.read_lines Lwt_io.stdin)) in *)
 
-  let serve = Tcp_server.create_socket_server application_port in
-  Lwt_main.run ( serve () <&> Child_process_manager.spawn_child_processes app_name child_processes application_port)
+  let serve_tcp = Tcp_server.create_socket_server application_port in
+  Lwt_main.run ( serve_tcp () <&> Child_process_manager.spawn_child_processes app_name child_processes application_port)
 
 
 let run_in_child_mode parent_app_tcp_port =
@@ -20,6 +20,7 @@ let run_in_child_mode parent_app_tcp_port =
   Lwt_main.run ( Tcp_client.start_tcp_client parent_app_tcp_port )
 
 let() = 
+ Random.self_init();
   let app_mode = App_args.resolve_app_mode_or_exit default_child_prcesses application_port in
   match app_mode with
   | ParentApp (aap_name, child_processes) -> run_in_server_mode aap_name child_processes

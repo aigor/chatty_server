@@ -14,20 +14,14 @@ let start_process app_name host_application_tcp_port process_id =
   let command = Lwt_process.shell child_process_command in
   Lwt_process.open_process_full command
 
-let rec spawn_child_process app_name host_application_tcp_port process_id () =
+let rec spawn_child_process app_name host_application_tcp_port process_id () : unit Lwt.t =
   let process = start_process app_name host_application_tcp_port process_id in
   handle_process_output process_id process#stdout () >>= fun () ->
   Lwt.async (spawn_child_process app_name host_application_tcp_port process_id);
   Logs_lwt.info (fun m -> m "[process: %i] Child process restarted" process_id) >>= return
 
 
-let spawn_child_processes app_name process_amount host_application_tcp_port = 
-  (* TODO: Use actual required child amount *)
-  Logs.info (fun m -> m "Starting %i processes..." process_amount);
-
-  let process_id = 1 in
-  spawn_child_process app_name host_application_tcp_port process_id ()
-
-  (* for process_id = 1 to process_amount do
-    spawn_child_process app_name host_application_tcp_port process_id ()
-  done *)
+let spawn_child_processes app_name process_amount host_application_tcp_port : unit Lwt.t =
+  List.init process_amount (fun i -> i + 1) |>
+  List.map (fun process_id -> spawn_child_process app_name host_application_tcp_port process_id ()) |>
+  Lwt.join

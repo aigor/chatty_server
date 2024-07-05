@@ -43,7 +43,7 @@ let client_connect host port =
   Lwt_unix.close sock
 
 let register_future_child_process_termination () =
-  Lwt.bind (Lwt_unix.sleep (random_float_from_interval 30 40)) 
+  Lwt.bind (Lwt_unix.sleep (random_float_from_interval 10 40)) 
     (fun () -> Lwt.fail Exit)
 
 let start_tcp_client application_port =
