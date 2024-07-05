@@ -25,15 +25,14 @@ let rec handle_connection ic oc connection_id () =
                 | None -> handle_connection ic oc connection_id ())
         | None -> Logs_lwt.info (fun m -> m "[%i] Connection closed" connection_id) >>= return)
 
-let nex_connection_id =
+let next_connection_id =
   let counter = ref 0 in
   fun () ->
     incr counter;
-    !counter
-        
+    !counter       
         
 let accept_connection conn =
-    let connection_id = nex_connection_id () in
+    let connection_id = next_connection_id () in
     let fd, _ = conn in
     let ic = Lwt_io.of_fd ~mode:Lwt_io.Input fd in
     let oc = Lwt_io.of_fd ~mode:Lwt_io.Output fd in
