@@ -8,7 +8,11 @@
 
 open Lwt
 
-let random_float_from_interval from_value to_value =
+let tcp_server_host = "127.0.0.1"
+let keep_alive_time_range_in_seconds = (5, 20)
+let child_process_lifetime_in_seconds = (60, 120)
+
+let random_float_from_interval (from_value, to_value) =
   float_of_int (from_value + Random.int (to_value - from_value))
 
 let handle_incoming_message msg =
@@ -18,7 +22,7 @@ let handle_incoming_message msg =
 
 let rec keep_alive_handler oc () = 
   let keep_alive = "KEEP_ALIVE" in  
-  Lwt.bind (Lwt_unix.sleep (random_float_from_interval 1 5)) 
+  Lwt.bind (Lwt_unix.sleep (random_float_from_interval keep_alive_time_range_in_seconds)) 
     (fun () -> Lwt_io.write_line oc keep_alive >>= keep_alive_handler oc)
 
 let rec handle_connection ic oc () =
@@ -43,10 +47,9 @@ let client_connect host port =
   Lwt_unix.close sock
 
 let register_future_child_process_termination () =
-  Lwt.bind (Lwt_unix.sleep (random_float_from_interval 10 40)) 
+  Lwt.bind (Lwt_unix.sleep (random_float_from_interval child_process_lifetime_in_seconds)) 
     (fun () -> Lwt.fail Exit)
 
 let start_tcp_client application_port =
   Lwt.async (register_future_child_process_termination);
-  let host = "127.0.0.1" in
-  client_connect host application_port
+  client_connect tcp_server_host application_port

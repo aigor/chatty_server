@@ -5,9 +5,6 @@ let combine_reporters r1 r2 =
   in
   { Logs.report }
 
-(* TODO: It seems that the current implementation somtimes breaks file content while writing log data. *)
-(* TODO: Incomplete implementation. We need file rotation, file retantion policy, and other basic logging features. *)
-(* Potential alternative: Logs_lwt *)
 open Lwt.Infix
 let lwt_file_reporter filename =
   let buf_fmt ~like =
@@ -63,16 +60,9 @@ let lwt_console_reporter () =
   { Logs.report = report }
 
 let setup_lightwait_logging_infrastructure () = 
-  let lock = Mutex.create () in
-  let lock () = Mutex.lock lock and unlock () = Mutex.unlock lock in
-  Logs.set_reporter_mutex ~lock ~unlock;
   Logs.set_reporter (lwt_console_reporter ());
   Logs.set_level (Some Debug)
 
 let setup_logging_infrastructure ~log_filename = 
-  (* TODO: What to do with mutex? *)
-  (* let lock = Mutex.create () in
-  let lock () = Mutex.lock lock and unlock () = Mutex.unlock lock in
-  Logs.set_reporter_mutex ~lock ~unlock; *)
   Logs.set_reporter (combine_reporters (lwt_file_reporter log_filename) (lwt_console_reporter ()));
   Logs.set_level (Some Debug)
