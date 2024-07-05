@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 file="/dev/stdin"
 child_processes_amount=200
 
