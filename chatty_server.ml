@@ -13,7 +13,6 @@ let run_in_server_mode child_processes =
   let simple_additional_thread () = Logs_lwt.info (fun m -> m "Some additiona work") in
 
   let serve = Tcp_server.create_socket_server application_port in
-  (* Lwt_main.run @@ serve (); *)
   Lwt_main.run ( serve () <&> simple_additional_thread ())
 
 

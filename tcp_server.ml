@@ -1,26 +1,28 @@
-open Lwt
+(* Server mode: expose TCP port and handle new connections *)
 
-(* Shared mutable counter *)
-let counter = ref 0
+open Lwt
 
 let listen_address = Unix.inet_addr_loopback
 let backlog = 10
 
-(* TODO: Handle keep-alive *)
-(* TODO: Handle ack for sent messages *)
+(* TODO: Distinquish ACK message and other messages *)
 let handle_incoming_message msg =
     match msg with
-    | "read" -> string_of_int !counter
-    | "inc"  -> counter := !counter + 1; "Counter has been incremented"
-    | _      -> "Unknown command"
+    | "KEEP_ALIVE" -> Some "KEEP_ALIVE_ACK"
+    | _ -> None
 
 let rec handle_connection ic oc () =
     Lwt_io.read_line_opt ic >>=
-    (fun msg ->
-        match msg with
-        | Some msg -> 
-            let reply = handle_incoming_message msg in
-            Lwt_io.write_line oc reply >>= handle_connection ic oc
+    (fun incoming_msg -> match incoming_msg with
+        | Some incoming_msg -> 
+            (
+                Logs.info(fun m -> m "[TODO: Add connection id] << Incoming message: %s" incoming_msg);
+                match handle_incoming_message incoming_msg with
+                | Some msg -> (
+                    Logs.info(fun m -> m "[TODO: Add connection id] >> Outgoing message: %s" msg);
+                    Lwt_io.write_line oc msg >>= handle_connection ic oc
+                )
+                | None -> handle_connection ic oc ())
         | None -> Logs_lwt.info (fun m -> m "Connection closed") >>= return)
 
 let accept_connection conn =
