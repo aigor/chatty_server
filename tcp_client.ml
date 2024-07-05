@@ -10,9 +10,7 @@ open Lwt
 
 let tcp_server_host = "127.0.0.1"
 let keep_alive_time_range_in_seconds = (5, 20)
-
-(* TODO: USe 60, 120 interval *)
-let child_process_lifetime_in_seconds = (10, 15)
+let child_process_lifetime_in_seconds = (60, 120)
 
 let random_float_from_interval (from_value, to_value) =
   float_of_int (from_value + Random.int (to_value - from_value))

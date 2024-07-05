@@ -20,6 +20,7 @@ let run_in_child_mode parent_app_tcp_port =
   Lwt_main.run ( Tcp_client.start_tcp_client parent_app_tcp_port )
 
 let () = 
+  Printexc.record_backtrace true;
   Random.self_init();
   let app_mode = App_args.resolve_app_mode_or_exit default_child_prcesses application_port in
   match app_mode with

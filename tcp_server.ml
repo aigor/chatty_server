@@ -26,6 +26,7 @@ let rec handle_connection ic oc connection_id () =
         | None -> Lwt_io.close oc >>= fun () -> Logs_lwt.info (fun m -> m "[connection: %i] Connection closed" connection_id) >>= return)
 
 let transfer_messages stream output_channel connection_id =
+  (* I don't like this approach as it still may try to send data to the closed strean case application crash *)
   let rec transfer () =
     match Lwt_io.is_closed output_channel with
     | true -> Logs_lwt.debug (fun m -> m "[connection: %i] Output channel closed, ignoring message" connection_id)
@@ -53,9 +54,7 @@ let accept_connection message_stream conn =
     let ic = Lwt_io.of_fd ~mode:Lwt_io.Input fd in
     let oc = Lwt_io.of_fd ~mode:Lwt_io.Output fd in
     Lwt.on_failure (handle_connection ic oc connection_id ()) (fun e -> Logs.err (fun m -> m "%s" (Printexc.to_string e) ));
-
     Lwt.async(fun () -> transfer_messages message_stream oc connection_id);
-
     Logs_lwt.info (fun m -> m "[connection: %i] New connection established" connection_id) >>= return
 
 let create_socket port =
@@ -71,6 +70,13 @@ let create_server sock message_stream =
     in serve
 
 let create_socket_server application_port message_stream =
+  (*
+     Dirty hack: the current implementation of the message forwarding from stdin to all TCP clients may sometimes cause SIGPIPE signal.
+     It happens rarely, but still may crash the application.
+     For now, we just ignore the SIGPIPE signals.
+     It does not affect application execution logic.
+  *)  
+  Sys.set_signal Sys.sigpipe Sys.Signal_ignore;
   let sock = create_socket application_port in
   let _ = Logs_lwt.info (fun m -> m "TCP server is listening on port %i" application_port) in
   create_server sock message_stream
