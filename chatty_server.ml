@@ -3,7 +3,7 @@ let application_port = 54321
 
 
 open Lwt
-let run_server_mode child_processes =
+let run_in_server_mode child_processes =
   Logging.setup_logging_infrastructure ~log_filename:"application.log";
   Logs.info (fun m -> m "=== Chatty Server ===");
   Logs.info (fun m -> m "Chatting with sometimes faulty chield processes (%i processes)" child_processes);
@@ -17,12 +17,12 @@ let run_server_mode child_processes =
   Lwt_main.run ( serve () <&> simple_additional_thread ())
 
 
-let run_child_mode parent_app_tcp_port =
+let run_in_child_mode parent_app_tcp_port =
   Logging.setup_lightwait_logging_infrastructure ();
   Logs.info (fun m -> m "Running in the child mode. Parent application TPC port: %i" parent_app_tcp_port)
 
 let() = 
   let app_mode = App_args.resolve_app_mode_or_exit default_child_prcesses application_port in
   match app_mode with
-  | ParentApp child_processes -> run_server_mode child_processes
-  | ChildApp paretn_app_tcp_port -> run_child_mode paretn_app_tcp_port
+  | ParentApp child_processes -> run_in_server_mode child_processes
+  | ChildApp paretn_app_tcp_port -> run_in_child_mode paretn_app_tcp_port
