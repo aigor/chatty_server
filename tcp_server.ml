@@ -23,20 +23,22 @@ let rec handle_connection ic oc connection_id () =
                     Lwt_io.write_line oc msg >>= handle_connection ic oc connection_id
                 )
                 | None -> handle_connection ic oc connection_id ())
-        | None -> Logs_lwt.info (fun m -> m "[connection: %i] Connection closed" connection_id) >>= return)
+        | None -> Lwt_io.close oc >>= fun () -> Logs_lwt.info (fun m -> m "[connection: %i] Connection closed" connection_id) >>= return)
 
 let transfer_messages stream output_channel connection_id =
   let rec transfer () =
-    Lwt_stream.get stream >>= function
-    | Some message -> 
-        Lwt_io.write_line output_channel message >>= fun () -> 
-        Logs_lwt.info (fun m -> m "[connection: %i] >> %s" connection_id message) >>= fun () -> 
-        transfer ()
-    | None -> Logs_lwt.info (fun m -> m "Stream ended unexpectedly.")
+    match Lwt_io.is_closed output_channel with
+    | true -> Logs_lwt.debug (fun m -> m "[connection: %i] Output channel closed, ignoring message" connection_id)
+    | false -> Lwt_stream.get stream >>= function
+        | Some message -> 
+            Lwt_io.write_line output_channel message >>= fun () -> 
+            Logs_lwt.info (fun m -> m "[connection: %i] >> %s" connection_id message) >>= fun () -> 
+            transfer ()
+        | None -> Logs_lwt.info (fun m -> m "Stream ended unexpectedly.")
   in
   Lwt.catch
   (fun () -> transfer ())
-  (fun ex -> Logs_lwt.info (fun m -> m "[connection: %i] Cannot transfer message to connection: %s" connection_id (Printexc.to_string ex) ))
+  (fun ex -> Logs_lwt.debug (fun m -> m "[connection: %i] Cannot transfer message to connection: %s" connection_id (Printexc.to_string ex) ))
 
 
 let next_connection_id =

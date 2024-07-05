@@ -2,7 +2,7 @@ open Lwt
 
 let start_process app_name host_application_tcp_port process_id =
   let child_process_command = app_name ^ " -child " ^ string_of_int host_application_tcp_port in
-  Logs.info (fun m -> m "[process: %i] Starting child process with command: %s" process_id child_process_command);
+  Logs.debug (fun m -> m "[process: %i] Starting child process with command: %s" process_id child_process_command);
   let command = Lwt_process.shell child_process_command in
   Lwt_process.open_process_full command
 

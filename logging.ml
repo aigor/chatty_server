@@ -65,8 +65,8 @@ let lwt_console_reporter () =
 
 let setup_lightwait_logging_infrastructure () = 
   Logs.set_reporter (lwt_console_reporter ());
-  Logs.set_level (Some Debug)
+  Logs.set_level (Some Info)
 
 let setup_logging_infrastructure ~log_filename = 
   Logs.set_reporter (combine_reporters (lwt_file_reporter log_filename) (lwt_console_reporter ()));
-  Logs.set_level (Some Debug)
+  Logs.set_level (Some Info)
