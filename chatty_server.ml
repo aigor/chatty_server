@@ -1,7 +1,6 @@
 let default_child_prcesses = 16
 let application_port = 54321
 
-
 open Lwt
 let run_in_server_mode app_name child_processes =
   Logging.setup_logging_infrastructure ~log_filename:"application.log";
