@@ -8,9 +8,10 @@ let run_in_server_mode app_name child_processes =
   Logs.info (fun m -> m "=== Chatty Server ===");
   Logs.info (fun m -> m "Chatting with sometimes faulty chield processes (%i processes)" child_processes);
 
-  (* let _ = Lwt_main.run (Lwt_io.write_lines Lwt_io.stdout (Lwt_io.read_lines Lwt_io.stdin)) in *)
+  let input_messages_stream = Lwt_io.read_lines Lwt_io.stdin in
+  Lwt.async(fun () -> Lwt_stream.iter (fun line -> Logs.info(fun m -> m "[stdin] Received: %s" line)) input_messages_stream);
 
-  let serve_tcp = Tcp_server.create_socket_server application_port in
+  let serve_tcp = Tcp_server.create_socket_server application_port input_messages_stream in
   Lwt_main.run ( serve_tcp () <&> Child_process_manager.spawn_child_processes app_name child_processes application_port)
 
 let run_in_child_mode parent_app_tcp_port =

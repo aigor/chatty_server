@@ -5,6 +5,10 @@ let combine_reporters r1 r2 =
   in
   { Logs.report }
 
+(**
+  Ideally, file based logging infrastructure requires some files rotation, some file retantion policy, etc.
+  However, for the current mini project the following implementation should be enough.
+*)  
 open Lwt.Infix
 let lwt_file_reporter filename =
   let buf_fmt ~like =

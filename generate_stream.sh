@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: Remove thisscript
+
 PIPE=/tmp/chatty_server_input_stream
 
 #SENDER

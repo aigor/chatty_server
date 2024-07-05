@@ -1,4 +1,4 @@
 #!/bin/bash
 
 dune build
-_build/default/chatty_server.exe 200
+_build/default/chatty_server.exe 4
