@@ -6,7 +6,9 @@ let counter = ref 0
 let listen_address = Unix.inet_addr_loopback
 let backlog = 10
 
-let handle_message msg =
+(* TODO: Handle keep-alive *)
+(* TODO: Handle ack for sent messages *)
+let handle_incoming_message msg =
     match msg with
     | "read" -> string_of_int !counter
     | "inc"  -> counter := !counter + 1; "Counter has been incremented"
@@ -17,7 +19,7 @@ let rec handle_connection ic oc () =
     (fun msg ->
         match msg with
         | Some msg -> 
-            let reply = handle_message msg in
+            let reply = handle_incoming_message msg in
             Lwt_io.write_line oc reply >>= handle_connection ic oc
         | None -> Logs_lwt.info (fun m -> m "Connection closed") >>= return)
 

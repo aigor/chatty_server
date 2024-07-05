@@ -62,9 +62,16 @@ let lwt_console_reporter () =
   in
   { Logs.report = report }
 
+let setup_lightwait_logging_infrastructure () = 
+  let lock = Mutex.create () in
+  let lock () = Mutex.lock lock and unlock () = Mutex.unlock lock in
+  Logs.set_reporter_mutex ~lock ~unlock;
+  Logs.set_reporter (lwt_console_reporter ());
+  Logs.set_level (Some Debug)
+
 let setup_logging_infrastructure ~log_filename = 
   let lock = Mutex.create () in
   let lock () = Mutex.lock lock and unlock () = Mutex.unlock lock in
   Logs.set_reporter_mutex ~lock ~unlock;
   Logs.set_reporter (combine_reporters (lwt_file_reporter log_filename) (lwt_console_reporter ()));
-  Logs.set_level (Some Debug);
+  Logs.set_level (Some Debug)
