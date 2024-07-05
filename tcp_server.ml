@@ -5,7 +5,7 @@ open Lwt
 let listen_address = Unix.inet_addr_loopback
 let backlog = 10
 
-(* TODO: Distinquish ACK message and other messages *)
+(* Server responds only to KEEP_ALIVE messages *)
 let handle_incoming_message msg =
     match msg with
     | "KEEP_ALIVE" -> Some "KEEP_ALIVE_ACK"
@@ -16,14 +16,14 @@ let rec handle_connection ic oc connection_id () =
     (fun incoming_msg -> match incoming_msg with
         | Some incoming_msg -> 
             (
-                Logs.info (fun m -> m "[%i] << %s" connection_id incoming_msg);
+                Logs.info (fun m -> m "[connection: %i] << %s" connection_id incoming_msg);
                 match handle_incoming_message incoming_msg with
                 | Some msg -> (
-                    Logs.info (fun m -> m "[%i] >> %s" connection_id msg);
+                    Logs.info (fun m -> m "[connection: %i] >> %s" connection_id msg);
                     Lwt_io.write_line oc msg >>= handle_connection ic oc connection_id
                 )
                 | None -> handle_connection ic oc connection_id ())
-        | None -> Logs_lwt.info (fun m -> m "[%i] Connection closed" connection_id) >>= return)
+        | None -> Logs_lwt.info (fun m -> m "[connection: %i] Connection closed" connection_id) >>= return)
 
 let next_connection_id =
   let counter = ref 0 in
@@ -38,9 +38,9 @@ let accept_connection conn =
     let ic = Lwt_io.of_fd ~mode:Lwt_io.Input fd in
     let oc = Lwt_io.of_fd ~mode:Lwt_io.Output fd in
     Lwt.on_failure (handle_connection ic oc connection_id ()) (fun e -> Logs.err (fun m -> m "%s" (Printexc.to_string e) ));
-    Logs_lwt.info (fun m -> m "[%i] New connection established" connection_id) >>= fun () ->
+    Logs_lwt.info (fun m -> m "[connection: %i] New connection established" connection_id) >>= fun () ->
     Lwt_io.write_line oc welcome_message >>= fun () ->
-    Logs_lwt.info (fun m -> m "[%i] >> %s" connection_id welcome_message) >>= return
+    Logs_lwt.info (fun m -> m "[connection: %i] >> %s" connection_id welcome_message) >>= return
     
 
 let create_socket port =
