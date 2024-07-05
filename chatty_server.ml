@@ -16,7 +16,8 @@ let run_in_server_mode app_name child_processes =
 
 let run_in_child_mode parent_app_tcp_port =
   Logging.setup_lightwait_logging_infrastructure ();
-  Logs.info (fun m -> m "Running in the child mode. Parent application TPC port: %i" parent_app_tcp_port)
+  Logs.info (fun m -> m "Running in the child mode. Parent application TPC port: %i" parent_app_tcp_port);
+  Lwt_main.run ( Tcp_client.start_tcp_client parent_app_tcp_port )
 
 let() = 
   let app_mode = App_args.resolve_app_mode_or_exit default_child_prcesses application_port in
