@@ -9,7 +9,7 @@ let usage_message = "chatty_server [-child] <number_of_child_processes|host_tpc+
 let resolve_app_mode_or_exit default_child_prcesses default_parent_app_tcp_port = 
   if Array.length Sys.argv > 3 then 
     begin 
-      print_endline "Aapplication accepts only the following arguments: [-child] <number_of_child_processes|host_tpc+port_for_child>";
+      print_endline ("Application usage: " ^ usage_message);
       exit 1
     end;
 

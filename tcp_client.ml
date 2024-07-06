@@ -1,9 +1,9 @@
 (**
    Client mode: 
-   Connects to the TCP server and communicate with it.
-   When receives a message from the TCP server it replies with the ACK_RECEIVED <original-message-length> message.  
-   Sends KEEP_ALIVE messages at randlon 5 to 20 seconds interval.
-   Finishes process execution at random interval between 60 to 120 seconds.
+   Connects to the TCP server and communicates with it.
+   When it receives a message from the TCP server, it replies with the ACK_RECEIVED <original-message-length> message.  
+   It sends KEEP_ALIVE messages at random 5 to 20-second intervals.
+   Finishes process execution at random intervals between 60 to 120 seconds.
 *)
 
 open Lwt
