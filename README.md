@@ -1,15 +1,15 @@
 # Simple chatty TCP server implemented with OCaml and LWT
 
 Short description of the application:
- * Main application starts a TCP server which communicates with all connected clients
+ * The main application starts a TCP server which communicates with all connected clients
  * The content of the main application's stdin is distributed between all TCP server clients
- * Main application starts multiple child processes:
+ * The main application starts multiple child processes:
    * The desired process count configuration is set by application arguments
    * Each child process connects to the TCP server (from the main application)
    * Each child process receives and acknowledges TCP messages
    * Each child process sends `KEEP_ALIVE` messages to the TCP server
    * Each child process terminates its execution after some random but preconfigured time
-   * Main process respawn terminated child process to sustain the desired child process count
+   * The main process respawns the terminated child process to sustain the desired child process count
   
 
 ## Environment
